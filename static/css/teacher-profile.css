@@ -1,0 +1,898 @@
+/* 头像上传相关样式 */
+.avatar-upload {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.avatar-preview {
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar-preview:hover::after {
+    content: '点击更换头像';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    padding: 5px;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* 全局样式 */
+body {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* 主容器样式 */
+.profile-container {
+    max-width: 1200px;
+    margin: 80px auto 40px;
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+}
+
+/* 左侧边栏样式 */
+.profile-sidebar {
+    flex: 0 0 300px;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+/* 头像部分 */
+.avatar-section {
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 4px solid #98D8AA;
+    transition: transform 0.3s ease;
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+}
+
+/* 基本信息样式 */
+.basic-info {
+    text-align: center;
+    padding-top: 15px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.basic-info h2 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 24px;
+}
+
+/* 评分样式 */
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 10px;
+}
+
+.rating-score {
+    font-size: 32px;
+    color: #98D8AA;
+    font-weight: bold;
+}
+
+.stars {
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+
+.star.filled {
+    color: #FFD700;
+}
+
+.star:not(.filled) {
+    color: #ddd;
+}
+
+.rating-count {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 右侧详细信息样式 */
+.profile-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* 信息区块通用样式 */
+.info-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.info-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #98D8AA;
+    font-size: 20px;
+    position: relative;
+}
+
+.info-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: #98D8AA;
+}
+
+/* 基本信息网格 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.info-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.info-icon {
+    width: 45px;
+    height: 45px;
+    background: #f0f7f4;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.info-icon i {
+    font-size: 20px;
+    color: #98D8AA;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-content label {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+}
+
+.info-value small {
+    font-size: 14px;
+    color: #666;
+    margin-left: 5px;
+}
+
+.empty-value {
+    color: #999;
+    font-style: italic;
+}
+
+.subject-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #f0f7f4;
+    color: #98D8AA;
+    border-radius: 15px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.edit-info-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #98D8AA;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.info-item:hover .edit-info-btn {
+    opacity: 1;
+}
+
+/* 证书展示 */
+.certificates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.certificate-item {
+    text-align: center;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.certificate-item:hover {
+    transform: translateY(-5px);
+}
+
+.certificate-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.cert-info {
+    padding: 12px;
+    background: #f8f8f8;
+}
+
+.cert-name {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.cert-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.add-certificate-btn {
+    background: #98D8AA;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.add-certificate-btn:hover {
+    background: #7BC99D;
+}
+
+/* 自我介绍 */
+.introduction {
+    position: relative;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    min-height: 100px;
+}
+
+.introduction p {
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding-right: 40px;
+}
+
+.introduction .edit-info-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    opacity: 0;
+}
+
+.introduction:hover .edit-info-btn {
+    opacity: 1;
+}
+
+/* 自我介绍文本区域样式 */
+.introduction-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: all 0.3s;
+    background: #f8f8f8;
+    font-family: inherit;
+}
+
+.introduction-textarea:focus {
+    outline: none;
+    border-color: #98D8AA;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(152, 216, 170, 0.2);
+}
+
+/* 空值状态样式 */
+.introduction p:empty::before,
+.introduction p:contains('暂无自我介绍')::before {
+    content: '暂无自我介绍';
+    color: #999;
+    font-style: italic;
+}
+
+/* 时间表 */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.schedule-day {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.schedule-day:hover {
+    background: #f0f7f4;
+    transform: translateY(-2px);
+}
+
+.schedule-day h4 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.time-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time-slots label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.time-slots label:hover {
+    background: white;
+}
+
+.time-slots input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #98D8AA;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    background: white;
+    transition: all 0.3s;
+}
+
+.time-slots input[type="checkbox"]:checked {
+    background: #98D8AA;
+    border-color: #98D8AA;
+}
+
+.time-slots input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.save-schedule-btn {
+    width: 100%;
+    padding: 12px;
+    background: #98D8AA;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin-top: 20px;
+}
+
+.save-schedule-btn:hover {
+    background: #7BC99D;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(152, 216, 170, 0.3);
+}
+
+.save-schedule-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 证书上传模态框 */
+.certificate-upload-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.preview-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#certPreview {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #98D8AA;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background: #7BC99D;
+}
+
+/* 响应式布局 */
+@media (max-width: 1024px) {
+    .profile-container {
+        margin: 60px auto 30px;
+        padding: 15px;
+    }
+    
+    .schedule-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+    }
+    
+    .profile-sidebar {
+        position: static;
+        width: 100%;
+    }
+    
+    .schedule-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .schedule-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .certificates {
+        grid-template-columns: 1fr;
+    }
+} 
+
+/* 编辑信息模态框 */
+.edit-info-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.edit-info-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.edit-info-modal h3 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #98D8AA;
+    text-align: center;
+}
+
+.edit-info-modal .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.edit-info-modal .close-btn:hover {
+    color: #333;
+    background: #f5f5f5;
+}
+
+.edit-info-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.edit-info-modal .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.edit-info-modal .form-group input[type="text"],
+.edit-info-modal .form-group input[type="email"],
+.edit-info-modal .form-group input[type="tel"],
+.edit-info-modal .form-group input[type="number"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+    background: #f8f8f8;
+}
+
+.edit-info-modal .form-group input:focus {
+    outline: none;
+    border-color: #98D8AA;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(152, 216, 170, 0.2);
+}
+
+/* 科目选择器样式优化 */
+.subjects-selector {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    background: #f8f8f8;
+}
+
+.subject-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.subject-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.subject-options label:hover {
+    background: #f0f0f0;
+}
+
+.subject-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #98D8AA;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    background: white;
+    transition: all 0.3s;
+}
+
+.subject-options input[type="checkbox"]:checked {
+    background: #98D8AA;
+    border-color: #98D8AA;
+}
+
+.subject-options input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.edit-info-modal .submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #98D8AA;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.edit-info-modal .submit-btn:hover {
+    background: #7BC99D;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(152, 216, 170, 0.3);
+}
+
+.edit-info-modal .submit-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 自定义滚动条 */
+.subjects-selector::-webkit-scrollbar {
+    width: 8px;
+}
+
+.subjects-selector::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.subjects-selector::-webkit-scrollbar-thumb {
+    background: #98D8AA;
+    border-radius: 4px;
+}
+
+.subjects-selector::-webkit-scrollbar-thumb:hover {
+    background: #7BC99D;
+} 
+
+/* 修改密码按钮样式 */
+.change-password-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #f0f7f4;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.change-password-btn:hover {
+    background: #e0f0e9;
+    transform: translateY(-1px);
+}
+
+.change-password-btn i {
+    color: #98D8AA;
+}
+
+/* 密码修改模态框样式 */
+.password-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.password-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease;
+}
+
+.password-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.password-modal input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+    background: #f8f8f8;
+}
+
+.password-modal input[type="password"]:focus {
+    outline: none;
+    border-color: #98D8AA;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(152, 216, 170, 0.2);
+}
+
+.form-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.password-modal .submit-btn {
+    margin-top: 10px;
+} 

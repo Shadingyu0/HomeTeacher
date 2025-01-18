@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名师推荐 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher-recommendation.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" >首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    <!-- 如果用户已登录，根据用户类型显示不同的个人中心入口 -->
+                    {% if session.get('user_type') == 'student' %}
+                        <!-- 学生个人中心入口 -->
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}"class="active">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <!-- 教师个人中心入口 -->
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <!-- 退出登录按钮 -->
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <!-- 未登录时显示登录入口 -->
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <div class="teachers-container">
+            <div class="header-section">
+                <h1>名师推荐</h1>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <select id="subjectFilter" onchange="filterTeachers()">
+                            <option value="">所有科目</option>
+                            <option value="数学">数学</option>
+                            <option value="语文">语文</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                        </select>
+                        <select id="ratingFilter" onchange="filterTeachers()">
+                            <option value="">所有评分</option>
+                            <option value="5">5星</option>
+                            <option value="4">4星及以上</option>
+                            <option value="3">3星及以上</option>
+                        </select>
+                        <select id="sortBy" onchange="filterTeachers()">
+                            <option value="rating">按评分排序</option>
+                            <option value="count">按评价数排序</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="searchTeacher" placeholder="搜索老师姓名..." oninput="filterTeachers()">
+                        <button onclick="filterTeachers()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="teachers-grid">
+                {% for teacher in teachers %}
+                    <div class="teacher-card" 
+                         data-subjects="{{ teacher.subjects }}"
+                         data-rating="{{ teacher.rating }}"
+                         data-name="{{ teacher.name }}"
+                         data-count="{{ teacher.rating_count }}">
+                        <div class="teacher-avatar">
+                            <a href="{{ url_for('teacher_detail', teacher_id=teacher.id) }}">
+                                <img src="{{ teacher.avatar_url or url_for('static', filename='images/default-avatar.jpg') }}" 
+                                     alt="{{ teacher.name }}的头像">
+                            </a>
+                        </div>
+                        <div class="teacher-info">
+                            <h2>{{ teacher.name }}</h2>
+                            <div class="rating-info">
+                                <div class="rating">
+                                    <span class="rating-score">{{ "%.1f"|format(teacher.rating) }}</span>
+                                    <div class="stars">
+                                        {% for i in range(5) %}
+                                            <span class="star {% if i < teacher.rating %}filled{% endif %}">★</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="rating-level {{ teacher.rating_class }}">
+                                    {{ teacher.rating_level }}
+                                </div>
+                                <div class="rating-count">
+                                    {{ teacher.rating_count }}条评价
+                                </div>
+                            </div>
+                            {% if teacher.subjects %}
+                                <div class="subjects">
+                                    {% for subject in teacher.subjects.split(',') %}
+                                        <span class="subject-tag">{{ subject }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="introduction">
+                                {{ teacher.introduction or '这位老师很懒，还没有填写自我介绍' }}
+                            </div>
+                            <button class="book-btn" onclick="bookTeacher({{ teacher.id }})">
+                                <i class="fas fa-calendar-check"></i> 预约课程
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加筛选功能的 JavaScript -->
+    <script>
+        function filterTeachers() {
+            const subject = document.getElementById('subjectFilter').value;
+            const rating = document.getElementById('ratingFilter').value;
+            const search = document.getElementById('searchTeacher').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+            
+            const cards = Array.from(document.querySelectorAll('.teacher-card'));
+            
+            cards.forEach(card => {
+                const subjects = card.dataset.subjects;
+                const teacherRating = parseFloat(card.dataset.rating);
+                const teacherName = card.dataset.name.toLowerCase();
+                
+                const subjectMatch = !subject || subjects.includes(subject);
+                const ratingMatch = !rating || teacherRating >= parseFloat(rating);
+                const nameMatch = teacherName.includes(search);
+                
+                card.style.display = (subjectMatch && ratingMatch && nameMatch) ? 'flex' : 'none';
+            });
+
+            // 排序功能
+            const visibleCards = cards.filter(card => card.style.display !== 'none');
+            visibleCards.sort((a, b) => {
+                if (sortBy === 'rating') {
+                    return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                } else {
+                    return parseInt(b.dataset.count) - parseInt(a.dataset.count);
+                }
+            });
+
+            const container = document.querySelector('.teachers-grid');
+            visibleCards.forEach(card => container.appendChild(card));
+        }
+    </script>
+</body>
+</html> 

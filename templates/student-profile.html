@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生个人中心 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student-profile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    {% if session.get('user_type') == 'student' %}
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}" class="active">个人中心</a>
+                    {% else %}
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 个人资料主要内容 -->
+    <div class="main-content">
+        <div class="profile-container">
+            <!-- 左侧个人信息 -->
+            <div class="profile-sidebar">
+                <div class="avatar-section">
+                    <form id="avatarForm" enctype="multipart/form-data">
+                        <div class="avatar-upload">
+                            <label for="avatarInput" class="avatar-preview">
+                                <img src="{{ student.avatar_url or url_for('static', filename='images/default-avatar.jpg') }}" 
+                                     alt="学生头像" 
+                                     class="avatar" 
+                                     id="avatarPreview">
+                            </label>
+                            <input type="file" 
+                                   id="avatarInput" 
+                                   name="avatar" 
+                                   accept="image/*" 
+                                   onchange="handleAvatarChange(this)">
+                        </div>
+                    </form>
+                </div>
+                <div class="basic-info">
+                    <h2>{{ session.get('username') }}</h2>
+                    <p class="student-grade">{{ student.grade }}</p>
+                    <button class="change-password-btn" onclick="showPasswordModal()">
+                        <i class="fas fa-key"></i> 修改密码
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧详细信息 -->
+            <div class="profile-details">
+                <!-- 基本信息部分 -->
+                <section class="info-section">
+                    <h3>基本信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>年级</label>
+                                <div class="info-value">
+                                    <span data-field="grade">{{ student.grade or '未设置' }}</span>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('grade')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>联系电话</label>
+                                <div class="info-value">
+                                    <span data-field="phone">{{ student.phone or '未设置' }}</span>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('phone')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>电子邮箱</label>
+                                <div class="info-value">
+                                    <span data-field="email">{{ student.email or '未设置' }}</span>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('email')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 学习记录部分 -->
+                <section class="info-section">
+                    <h3>学习记录</h3>
+                    <div class="record-list">
+                        {% if learning_records %}
+                            {% for record in learning_records %}
+                            <div class="record-item">
+                                <div class="record-date">{{ record.formatted_date }}</div>
+                                <div class="record-content">
+                                    <h4>{{ record.course_name }}</h4>
+                                    <p class="record-teacher">教师：{{ record.teacher_name }}</p>
+                                    <p class="record-duration">学习时长：{{ record.duration }}分钟</p>
+                                    <p class="record-desc">{{ record.content }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-book-open"></i>
+                                <p>暂无学习记录</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- 课程安排部分 -->
+                <section class="info-section">
+                    <h3>课程安排</h3>
+                    <div class="schedule-list">
+                        {% if schedules %}
+                            {% for schedule in schedules %}
+                            <div class="schedule-item">
+                                <div class="schedule-time">
+                                    <div class="date">{{ schedule.formatted_date }}</div>
+                                    <div class="time">{{ schedule.formatted_time }}</div>
+                                </div>
+                                <div class="schedule-content">
+                                    <h4>{{ schedule.course_name }}</h4>
+                                    <p class="schedule-teacher">教师：{{ schedule.teacher_name }}</p>
+                                    <p class="schedule-location">地点：{{ schedule.location }}</p>
+                                    <span class="status-badge {{ schedule.status }}">
+                                        {% if schedule.status == 'confirmed' %}已确认
+                                        {% elif schedule.status == 'pending' %}待确认
+                                        {% else %}已取消{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-alt"></i>
+                                <p>暂无课程安排</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑信息模态框 -->
+    <div class="edit-info-modal" id="editInfoModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h3>编辑信息</h3>
+            <form id="editInfoForm">
+                <div class="form-group">
+                    <label id="editLabel"></label>
+                    <input type="text" id="editInput" name="value">
+                </div>
+                <button type="submit" class="submit-btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="password-modal" id="passwordModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePasswordModal()">&times;</span>
+            <h3>修改密码</h3>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="oldPassword">原密码</label>
+                    <input type="password" id="oldPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">确认修改</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 处理头像更改
+        function handleAvatarChange(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+
+                // 自动上传
+                const formData = new FormData();
+                formData.append('avatar', input.files[0]);
+
+                fetch('/upload_avatar', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'success') {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('上传失败，请稍后重试');
+                });
+            }
+        }
+
+        // 编辑信息相关函数
+        function editInfo(field) {
+            const modal = document.getElementById('editInfoModal');
+            const editLabel = document.getElementById('editLabel');
+            const editInput = document.getElementById('editInput');
+            
+            const labels = {
+                'grade': '年级',
+                'phone': '联系电话',
+                'email': '电子邮箱'
+            };
+            
+            editLabel.textContent = labels[field];
+            editInput.value = document.querySelector(`[data-field="${field}"]`).textContent.trim();
+            
+            if (field === 'email') {
+                editInput.type = 'email';
+            } else if (field === 'phone') {
+                editInput.type = 'tel';
+                editInput.pattern = '[0-9]{11}';
+            } else {
+                editInput.type = 'text';
+            }
+            
+            modal.style.display = 'flex';
+            currentEditField = field;
+        }
+
+        function closeEditModal() {
+            document.getElementById('editInfoModal').style.display = 'none';
+        }
+
+        // 处理信息更新
+        document.getElementById('editInfoForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const value = document.getElementById('editInput').value.trim();
+            
+            fetch('/update_student_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    field: currentEditField,
+                    value: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.querySelector(`[data-field="${currentEditField}"]`).textContent = value;
+                    closeEditModal();
+                    alert('更新成功');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败，请稍后重试');
+            });
+        };
+
+        // 密码修改相关函数
+        function showPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('passwordForm').reset();
+        }
+
+        document.getElementById('passwordForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            
+            fetch('/change_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    old_password: oldPassword,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('密码修改成功');
+                    closePasswordModal();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('修改失败，请稍后重试');
+            });
+        };
+
+        // 点击模态框外部关闭模态框
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editInfoModal');
+            const passwordModal = document.getElementById('passwordModal');
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+            if (event.target === passwordModal) {
+                closePasswordModal();
+            }
+        };
+
+        let currentEditField = '';
+    </script>
+</body>
+</html> 

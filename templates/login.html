@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <!-- 登录表单 -->
+        <div class="login-form">
+            <div class="switch-buttons">
+                <button class="switch-btn active" data-type="student">学生登录</button>
+                <button class="switch-btn" data-type="teacher">教师登录</button>
+            </div>
+            <h2 id="login-title">学生登录</h2>
+            <form id="loginForm" method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <input type="text" id="username" name="username" placeholder="用户名/手机号" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="密码" required>
+                </div>
+                <input type="hidden" name="userType" id="userType" value="student">
+                <div class="form-options">
+                    <label>
+                        <input type="checkbox" name="remember"> 记住密码
+                    </label>
+                    <a href="#" class="forget-pwd">忘记密码？</a>
+                </div>
+                <button type="submit" class="login-btn">登录</button>
+                <div class="register-link">
+                    还没有账号？<a href="#" id="registerLink">立即注册</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const switchBtns = document.querySelectorAll('.switch-btn');
+            const loginTitle = document.getElementById('login-title');
+            const loginForm = document.getElementById('loginForm');
+            const userTypeInput = document.getElementById('userType');
+            let currentType = 'student';
+
+            // 切换账户类型
+            switchBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentType = this.dataset.type;
+                    userTypeInput.value = currentType;
+                    loginTitle.textContent = currentType === 'student' ? '学生登录' : '教师登录';
+                    loginForm.reset();
+                });
+            });
+
+            // 处理表单提交
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                fetch("{{ url_for('login') }}", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        window.location.href = data.redirect;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('登录失败，请稍后重试');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程发布 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/course-publish.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    {% if session.get('user_type') == 'student' %}
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <a href="{{ url_for('course_publish') }}" class="active">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <div class="courses-container">
+            <div class="header-section">
+                <h1>我的课程</h1>
+                <button class="publish-btn" onclick="showPublishModal()">
+                    <i class="fas fa-plus"></i> 发布新课程
+                </button>
+            </div>
+
+            <!-- 课程列表 -->
+            <div class="courses-grid">
+                {% for course in courses %}
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="header-left">
+                                <h3>{{ course.name }}</h3>
+                                <div class="course-type">
+                                    {% if course.course_type == 'online' %}
+                                        <span class="type-badge online">
+                                            <i class="fas fa-video"></i> 线上课程
+                                        </span>
+                                    {% elif course.course_type == 'offline' %}
+                                        <span class="type-badge offline">
+                                            <i class="fas fa-chalkboard-teacher"></i> 线下课程
+                                        </span>
+                                    {% else %}
+                                        <span class="type-badge both">
+                                            <i class="fas fa-random"></i> 线上/线下可选
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="course-actions">
+                                <button class="action-btn edit" onclick="showEditModal({{ course|tojson }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" onclick="confirmDelete({{ course.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-info">
+                            <p class="description">{{ course.description }}</p>
+                            <div class="details">
+                                <div class="detail-item">
+                                    <i class="fas fa-book"></i>
+                                    <span>{{ course.subject }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>{{ course.grade_level }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ course.enrolled_students }}/{{ course.max_students }}人</span>
+                                </div>
+                                {% if course.location %}
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ course.location }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="course-footer">
+                                <div class="price">¥{{ course.price }}/课时</div>
+                                <div class="rating">
+                                    <span class="rating-score">{{ "%.1f"|format(course.avg_rating) }}</span>
+                                    <div class="stars">
+                                        {% for i in range(5) %}
+                                            <span class="star {% if i < course.avg_rating %}filled{% endif %}">★</span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="rating-count">({{ course.rating_count }}条评价)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="no-courses">
+                        <i class="fas fa-book"></i>
+                        <p>您还没有发布任何课程</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布课程模态框 -->
+    <div class="modal" id="publishModal">
+        <div class="modal-content">
+            <span class="close" onclick="closePublishModal()">&times;</span>
+            <h2>发布新课程</h2>
+            <form id="publishForm">
+                <div class="form-group">
+                    <label for="courseName">课程名称</label>
+                    <input type="text" id="courseName" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">科目</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">请选择科目</option>
+                        <option value="数学">数学</option>
+                        <option value="语文">语文</option>
+                        <option value="英语">英语</option>
+                        <option value="物理">物理</option>
+                        <option value="化学">化学</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gradeLevel">适用年级</label>
+                    <select id="gradeLevel" name="grade_level" required>
+                        <option value="">请选择年级</option>
+                        <option value="小学">小学</option>
+                        <option value="初中">初中</option>
+                        <option value="高中">高中</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="courseType">授课方式</label>
+                    <select id="courseType" name="course_type" required onchange="toggleLocationField()">
+                        <option value="">请选择授课方式</option>
+                        <option value="online">线上授课</option>
+                        <option value="offline">线下授课</option>
+                        <option value="both">线上/线下可选</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="locationField" style="display: none;">
+                    <label for="location">上课地点</label>
+                    <input type="text" id="location" name="location">
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">课时费用</label>
+                    <input type="number" id="price" name="price" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxStudents">最大学生数</label>
+                    <input type="number" id="maxStudents" name="max_students" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">课程描述</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">发布课程</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加编辑课程的模态框 -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>编辑课程</h2>
+            <form id="editForm">
+                <input type="hidden" id="editCourseId" name="course_id">
+                <div class="form-group">
+                    <label for="editCourseName">课程名称</label>
+                    <input type="text" id="editCourseName" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editSubject">科目</label>
+                    <select id="editSubject" name="subject" required>
+                        <option value="">请选择科目</option>
+                        <option value="数学">数学</option>
+                        <option value="语文">语文</option>
+                        <option value="英语">英语</option>
+                        <option value="物理">物理</option>
+                        <option value="化学">化学</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editGradeLevel">适用年级</label>
+                    <select id="editGradeLevel" name="grade_level" required>
+                        <option value="">请选择年级</option>
+                        <option value="小学">小学</option>
+                        <option value="初中">初中</option>
+                        <option value="高中">高中</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCourseType">授课方式</label>
+                    <select id="editCourseType" name="course_type" required onchange="toggleEditLocationField()">
+                        <option value="">请选择授课方式</option>
+                        <option value="online">线上授课</option>
+                        <option value="offline">线下授课</option>
+                        <option value="both">线上/线下可选</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="editLocationField">
+                    <label for="editLocation">上课地点</label>
+                    <input type="text" id="editLocation" name="location">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editPrice">课时费用</label>
+                    <input type="number" id="editPrice" name="price" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editMaxStudents">最大学生数</label>
+                    <input type="number" id="editMaxStudents" name="max_students" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editDescription">课程描述</label>
+                    <textarea id="editDescription" name="description" required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">保存修改</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 显示发布课程模态框
+        function showPublishModal() {
+            document.getElementById('publishModal').style.display = 'block';
+        }
+        
+        // 关闭发布课程模态框
+        function closePublishModal() {
+            document.getElementById('publishModal').style.display = 'none';
+            document.getElementById('publishForm').reset();
+        }
+        
+        // 根据授课方式显示/隐藏地点输入框
+        function toggleLocationField() {
+            const courseType = document.getElementById('courseType').value;
+            const locationField = document.getElementById('locationField');
+            locationField.style.display = 
+                (courseType === 'offline' || courseType === 'both') ? 'block' : 'none';
+        }
+        
+        // 处理课程发布表单提交
+        document.getElementById('publishForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('courseName').value,
+                subject: document.getElementById('subject').value,
+                grade_level: document.getElementById('gradeLevel').value,
+                course_type: document.getElementById('courseType').value,
+                location: document.getElementById('location').value,
+                price: document.getElementById('price').value,
+                max_students: document.getElementById('maxStudents').value,
+                description: document.getElementById('description').value
+            };
+            
+            fetch('/publish_course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closePublishModal();
+                    location.reload();  // 刷新页面显示新课程
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('发布失败，请稍后重试');
+            });
+        };
+        
+        // 点击模态框外部关闭模态框
+        window.onclick = function(event) {
+            const modal = document.getElementById('publishModal');
+            if (event.target == modal) {
+                closePublishModal();
+            }
+        }
+        
+        // 显示编辑模态框并填充数据
+        function showEditModal(course) {
+            document.getElementById('editModal').style.display = 'block';
+            document.getElementById('editCourseId').value = course.id;
+            document.getElementById('editCourseName').value = course.name;
+            document.getElementById('editSubject').value = course.subject;
+            document.getElementById('editGradeLevel').value = course.grade_level;
+            document.getElementById('editCourseType').value = course.course_type;
+            document.getElementById('editPrice').value = course.price;
+            document.getElementById('editMaxStudents').value = course.max_students;
+            document.getElementById('editDescription').value = course.description;
+            
+            // 处理地点字段的显示/隐藏
+            const locationField = document.getElementById('editLocationField');
+            locationField.style.display = 
+                (course.course_type === 'offline' || course.course_type === 'both') 
+                    ? 'block' 
+                    : 'none';
+            document.getElementById('editLocation').value = course.location || '';
+        }
+        
+        // 添加课程类型变更监听
+        document.getElementById('editCourseType').addEventListener('change', function() {
+            const locationField = document.getElementById('editLocationField');
+            locationField.style.display = 
+                (this.value === 'offline' || this.value === 'both') 
+                    ? 'block' 
+                    : 'none';
+        });
+        
+        // 关闭编辑模态框
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editForm').reset();
+        }
+        
+        // 处理编辑表单提交
+        document.getElementById('editForm').onsubmit = function(e) {
+            e.preventDefault();
+            const courseId = document.getElementById('editCourseId').value;
+            
+            const formData = {
+                name: document.getElementById('editCourseName').value,
+                subject: document.getElementById('editSubject').value,
+                grade_level: document.getElementById('editGradeLevel').value,
+                course_type: document.getElementById('editCourseType').value,
+                location: document.getElementById('editLocation').value,
+                price: document.getElementById('editPrice').value,
+                max_students: document.getElementById('editMaxStudents').value,
+                description: document.getElementById('editDescription').value
+            };
+            
+            fetch(`/update_course/${courseId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeEditModal();
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败，请稍后重试');
+            });
+        };
+        
+        // 确认删除
+        function confirmDelete(courseId) {
+            if (confirm('确定要删除这个课程吗？此操作不可恢复。')) {
+                fetch(`/delete_course/${courseId}`, {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除失败，请稍后重试');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

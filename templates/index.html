@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智家能家教预约平台 - 首页</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="active">首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    <!-- 如果用户已登录，根据用户类型显示不同的个人中心入口 -->
+                    {% if session.get('user_type') == 'student' %}
+                        <!-- 学生个人中心入口 -->
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <!-- 教师个人中心入口 -->
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <!-- 退出登录按钮 -->
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <!-- 未登录时显示登录入口 -->
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 轮播图容器 -->
+    <div class="slider-container">
+        <!-- 轮播图片组 -->
+        <div class="slider">
+            <!-- 第一张图片 -->
+            <div class="slide">
+                <img src="../static/images/banner1.jpg" alt="轮播图1">
+            </div>
+            <!-- 第二张图片 -->
+            <div class="slide">
+                <img src="static/images/banner2.jpg" alt="轮播图2">
+            </div>
+            <!-- 第三张图片 -->
+            <div class="slide">
+                <img src="../static/images/banner3.jpg" alt="轮播图3">
+            </div>
+        </div>
+        <!-- 上一张/下一张按钮 -->
+        <button class="slider-button prev">❮</button>
+        <button class="slider-button next">❯</button>
+        <!-- 底部圆点指示器 -->
+        <div class="slider-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+        <!-- 轮播图区域 -->
+        
+
+        <!-- 特色服务 -->
+        <div class="features">
+            <div class="feature-card">
+                <h3>专业师资</h3>
+                <p>严选优质教师，保证教学质量</p>
+            </div>
+            <div class="feature-card">
+                <h3>一对一辅导</h3>
+                <p>个性化教学，因材施教</p>
+            </div>
+            <div class="feature-card">
+                <h3>灵活时间</h3>
+                <p>时间自由安排，适应学生需求</p>
+            </div>
+            <div class="feature-card">
+                <h3>质量保证</h3>
+                <p>专业团队跟进，确保教学效果</p>
+            </div>
+        </div>
+
+        <!-- 热门课程 -->
+        <div class="popular-courses">
+            <h2 class="section-title">热门课程</h2>
+            <div class="course-grid">
+                <div class="course-card">
+                    <div class="course-image"></div>
+                    <div class="course-info">
+                        <h3>高中数学提高班</h3>
+                        <p>针对性提升，突破重难点</p>
+                        <p class="price">￥200/课时</p>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image"></div>
+                    <div class="course-info">
+                        <h3>初中英语强化班</h3>
+                        <p>全面提升听说读写能力</p>
+                        <p class="price">￥180/课时</p>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image"></div>
+                    <div class="course-info">
+                        <h3>小学全科辅导</h3>
+                        <p>打好基础，快乐学习</p>
+                        <p class="price">￥150/课时</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于我们 -->
+        <section class="about-us">
+            <div class="container">
+                <h2 class="section-title">关于我们</h2>
+                <div class="about-wrapper">
+                    <div class="about-content">
+                        <p class="about-text">
+                            智家能家教 是专业家教机构平台,全国连锁,家教行业领导品牌，十二年家教服务,三十万教员在线挑选，上门一对一家教,省时省力，专业老师供小学、初中、高中以及大学课程的一对一上门家。
+                            我们自成立以来，一直专注于家教家教辅导，我们团队的成员曾务于国内各大中小学，专注于上门家教辅导，教学质量和信誉是我们存在的基石。
+                            <span class="text-truncate">
+                                我们注重家长提出的每个要求，充分考虑每一细节，积极的做好服务，努力开拓更好的家教辅导，我们永远不会因为我们曾经的成绩而满足。在所有新老学员面前，我们都很乐意虚心、朴实的跟您接触，更深入的了解孩子的情况，以便为孩子提供更优质的家教辅导！
+                                主要服务于全国小初高学生，自机构创立以来，已辅导200万学生，子墨 家教 致力提供优质的家教辅导与强大的售后跟踪，解决学生各方面的...
+                            </span>
+                        </p>
+                        <div class="text-center">
+                            <a href="about-us.html" class="more-btn">查看更多</a>
+                        </div>
+                    </div>
+                    <div class="about-image">
+                        <img src="../static/images/about-us.jpg" alt="关于我们">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>关于我们</h4>
+                <p>专业的家教预约平台，致力于为学生提供优质的一对一辅导服务。</p>
+            </div>
+            <div class="footer-section">
+                <h4>联系方式</h4>
+                <p>电话：400-123-4567</p>
+                <p>邮箱：jiazhineng@hzu.com</p>
+            </div>
+            <div class="footer-section">
+                <h4>服务时间</h4>
+                <p>周一至周日</p>
+                <p>9:00-21:00</p>
+            </div>
+            <div class="footer-section">
+                <h4>关注我们</h4>
+                <p>微信公众号：家教预约</p>
+                <p>官方微博：@家教预约平台</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 在body标签结束前添加 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.querySelector('.slider');
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            const prevButton = document.querySelector('.prev');
+            const nextButton = document.querySelector('.next');
+            
+            let currentSlide = 0;
+            const slideCount = slides.length;
+            
+            function updateSlider() {
+                slider.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+                // 更新圆点状态
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slideCount;
+                updateSlider();
+            }
+            
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+                updateSlider();
+            }
+            
+            // 添加按钮点击事件
+            nextButton.addEventListener('click', nextSlide);
+            prevButton.addEventListener('click', prevSlide);
+            
+            // 添加圆点点击事件
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    updateSlider();
+                });
+            });
+            
+            // 自动轮播
+            setInterval(nextSlide, 5000); // 每5秒切换一次
+        });
+    </script>
+</body>
+</html> 

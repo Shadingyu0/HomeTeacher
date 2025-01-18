@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="stylesheet" href="../static/css/about-us.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" >首页</a>
+                <a href="{{ url_for('about') }}"class="active">关于我们</a>
+                {% if session.get('user_id') %}
+                    <!-- 如果用户已登录，根据用户类型显示不同的个人中心入口 -->
+                    {% if session.get('user_type') == 'student' %}
+                        <!-- 学生个人中心入口 -->
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <!-- 教师个人中心入口 -->
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <!-- 退出登录按钮 -->
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <!-- 未登录时显示登录入口 -->
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="about-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="company">公司简介</button>
+                <button class="tab-btn" data-tab="history">发展历程</button>
+                <button class="tab-btn" data-tab="jobs">招贤纳士</button>
+                <button class="tab-btn" data-tab="honors">企业荣誉</button>
+            </div>
+
+            <div id="company" class="content-section active">
+                <h2>公司简介</h2>
+                <div class="company-intro">
+                    <p>智家能家教是专注于提供高质量一对一上门辅导的专业教育服务平台，拥有全国连锁的规模和良好的口碑。自成立以来，我们积累了超过十年的丰富经验，平台上活跃着超过二十万经过严格筛选与培训的优秀教员，覆盖从小学到大学各个阶段的课程辅导。</p>
+                    
+                    <p>我们的核心团队成员多来自国内知名学府及中小学，具深厚的教育背景和丰富的教学经验。在智家能家教，我们知道教学质量与家长、学生的信任是我们发展的根本，因此始终致力于满足每一位家长的需求，关注每一个细节，积极主动地为学生提供最贴心的服务，不断追求更高的教学品质，努力探索更有效的个性化教学方法。</p>
+                    
+                    <p>智家能家教已经成功帮助了数以百万计的学生提升了学业成绩，并建立了完善的售后跟服务体系，确保能够及时解决学生们在学习过程中遇到的各种问题。我们坚信，通过不懈的努力，可以为孩子们打造一个更加光明的学习未来。秉承"用心服务，耐心教学"的理念，我们将持续提升自身服务水平与教师的教学能力，认真对待每一位学员的反馈，力求让每一位孩子都能在这里找到最适合自己的学习之道。</p>
+                    
+                    <p>在智家能家教，我们用实际行动证明实力，无数成功的案例就是最好的见证。我们承诺，在接到需求后的24-48小时内，将为您匹配到最适合的优秀教师，制定出高效且个性化的辅导计划，拒绝一切不必要的拖延。同时，我们也深刻理解每个孩子都是独一无二的个体，他们需要的是真诚的关注与专业的指导。通过多年的经验积累，我们知道，除了科学合理的教学策略外，更重要的是那份对孩子的真心关怀。智家能家教，愿与各位学员共同进步，互利共赢，为孩子培养更好的学习习惯，助力孩子成长每一步。</p>
+                </div>
+            </div>
+
+            <div id="history" class="content-section">
+                <h2>发展历程</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h3>2013年</h3>
+                        <p>公司成立，开始提供线下一对一家教服务</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2015年</h3>
+                        <p>业务扩展至全国10个主要城市，教师规模突破1万</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2017年</h3>
+                        <p>获得天使轮投资，启动在线预约平台开发</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2019年</h3>
+                        <p>上线智能匹配系统1.0版本，覆盖城市增至30个</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2020年</h3>
+                        <p>完成线上线下业务整合，推出家教预约平台2.0</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2021年</h3>
+                        <p>获得A轮融资，用户规模突破5万，进入快速发展期</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2022年</h3>
+                        <p>推出AI智能匹配系统3.0，服务效率提升300%</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>2023年</h3>
+                        <p>教师规模突破20万，服务学生超过100万，成为行业领军企业</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="jobs" class="content-section">
+                <h2>招贤纳士</h2>
+                <div class="job-list">
+                    <div class="job-item">
+                        <h3>全栈开发工程师</h3>
+                        <p>职责：负责平台核心功能开发和维护</p>
+                        <p>要求：3年以上相关经验，精通前后端技术栈</p>
+                        <p>薪资：15k-30k</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>产品经理</h3>
+                        <p>职责：负责产品规划和功能设计，把控产品方向</p>
+                        <p>要求：2年以上教育产品相关经验，有家教平台经验优先</p>
+                        <p>薪资：12k-25k</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>市场运营专员</h3>
+                        <p>职责：负责平台推广和用户运营，提升用户活跃度</p>
+                        <p>要求：有教育行业运营经验优先，善于策划活动</p>
+                        <p>薪资：8k-15k</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>教务主��</h3>
+                        <p>职责：负责教师资源管理，把控教学质量</p>
+                        <p>要求：5年以上教育行业经验，有团队管理经验</p>
+                        <p>薪资：12k-20k</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>AI算法工程师</h3>
+                        <p>职责：优化智能匹配算法，提升匹配准确度</p>
+                        <p>要求：机器学习相关经验，熟悉推荐系统</p>
+                        <p>薪资：20k-40k</p>
+                    </div>
+                    <div class="job-item">
+                        <h3>客户服务主管</h3>
+                        <p>职责：管理客服团队，提升服务质量</p>
+                        <p>要求：3年以上客服管理经验，有教育行业经验优先</p>
+                        <p>薪资：10k-18k</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="honors" class="content-section">
+                <h2>企业荣誉</h2>
+                <div class="honor-grid">
+                    <div class="honor-item">
+                        <h3>2023年度</h3>
+                        <p>中国教育科技创新企业50强</p>
+                        <p>年度最佳雇主奖</p>
+                        <p>教育行业服务质量五星认证</p>
+                    </div>
+                    <div class="honor-item">
+                        <h3>2022年度</h3>
+                        <p>最具投资价值教育企业</p>
+                        <p>互联网教育创新企业奖</p>
+                        <p>用户满意度五星平台</p>
+                    </div>
+                    <div class="honor-item">
+                        <h3>2021年度</h3>
+                        <p>教育行业创新服务奖</p>
+                        <p>最受家长信赖教育品牌</p>
+                        <p>年度影响力教育机构</p>
+                    </div>
+                    <div class="honor-item">
+                        <h3>2020年度</h3>
+                        <p>教育科技创新示范企业</p>
+                        <p>优秀教育服务商</p>
+                        <p>家长口碑推荐奖</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>关于我们</h4>
+                <p>专业的家教预约平台，致力于为学生提供优质的一对一辅导服务。</p>
+            </div>
+            <div class="footer-section">
+                <h4>联系方式</h4>
+                <p>电话：400-123-4567</p>
+                <p>邮箱：jiazhineng@hzu.com</p>
+            </div>
+            <div class="footer-section">
+                <h4>服务时间</h4>
+                <p>周一至周日</p>
+                <p>9:00-21:00</p>
+            </div>
+            <div class="footer-section">
+                <h4>关注我们</h4>
+                <p>微信公众号：家教预约</p>
+                <p>官方微博：@家教预约平台</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有按钮的active类
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    // 给当前点击的按钮添加active类
+                    button.classList.add('active');
+
+                    // 隐藏所有内容区域
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    // 显示���应的内容区域
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

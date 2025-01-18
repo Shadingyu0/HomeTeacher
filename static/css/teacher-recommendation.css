@@ -1,0 +1,281 @@
+.main-content {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.teachers-container h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #333;
+    font-size: 32px;
+}
+
+.teachers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px;
+    justify-content: start;
+}
+
+.teacher-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    max-width: 280px;
+    padding: 15px;
+    min-height: 180px;
+}
+
+.teacher-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.teacher-avatar {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+}
+
+.teacher-avatar img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teacher-info {
+    padding: 15px 0 0 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-left: 95px;
+}
+
+.teacher-info h2 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.rating-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-score {
+    font-size: 18px;
+    font-weight: bold;
+    color: #98D8AA;
+}
+
+.stars {
+    color: #FFD700;
+    font-size: 12px;
+}
+
+.rating-level {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+    margin: 8px 0;
+}
+
+.subject-tag {
+    padding: 3px 10px;
+    background: #f0f7f4;
+    color: #98D8AA;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+.introduction {
+    color: #666;
+    font-size: 12px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 5px 0 15px 0;
+}
+
+.book-btn {
+    width: 100%;
+    padding: 8px;
+    background: #98D8AA;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.book-btn:hover {
+    background: #7BC99D;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(152, 216, 170, 0.3);
+}
+
+.book-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.excellent {
+    background: #e6f7ff;
+    color: #1890ff;
+}
+
+.very-good {
+    background: #f6ffed;
+    color: #52c41a;
+}
+
+.good {
+    background: #e6fffb;
+    color: #13c2c2;
+}
+
+.mixed {
+    background: #fff7e6;
+    color: #fa8c16;
+}
+
+.poor {
+    background: #fff1f0;
+    color: #f5222d;
+}
+
+.very-poor {
+    background: #fff0f6;
+    color: #eb2f96;
+}
+
+.rating-count {
+    font-size: 12px;
+    color: #999;
+}
+
+@media (max-width: 768px) {
+    .teachers-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        justify-content: start;
+    }
+    
+    .teacher-card {
+        max-width: 280px;
+    }
+} 
+.filter-section {
+    background-color: var(--card-background);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 添加筛选部分的样式 */
+.header-section {
+    margin-bottom: 2rem;
+}
+
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-group select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    min-width: 120px;
+}
+
+.search-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-group input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.search-group button {
+    padding: 0.5rem 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-group button:hover {
+    background-color: #45a049;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .filter-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filter-group {
+        flex-wrap: wrap;
+    }
+    
+    .search-group {
+        width: 100%;
+    }
+    
+    .search-group input {
+        flex: 1;
+    }
+}

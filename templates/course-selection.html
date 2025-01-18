@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程选择 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/course-selection.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" >首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    <!-- 如果用户已登录，根据用户类型显示不同的个人中心入口 -->
+                    {% if session.get('user_type') == 'student' %}
+                        <!-- 学生个人中心入口 -->
+                        <a href="{{ url_for('course_selection') }}"class="active">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <!-- 教师个人中心入口 -->
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <!-- 退出登录按钮 -->
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <!-- 未登录时显示登录入口 -->
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <div class="courses-container">
+            <div class="header-section">
+                <h1>课程选择</h1>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <select id="subjectFilter" onchange="filterTeachers()">
+                            <option value="">所有科目</option>
+                            <option value="数学">数学</option>
+                            <option value="语文">语文</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                        </select>
+                        <select id="courseTypeFilter" onchange="filterTeachers()">
+                            <option value="">所有授课方式</option>
+                            <option value="online">线上课程</option>
+                            <option value="offline">线下课程</option>
+                            <option value="both">线上/线下可选</option>
+                        </select>
+                        <select id="ratingFilter" onchange="filterTeachers()">
+                            <option value="">所有评分</option>
+                            <option value="5">5星</option>
+                            <option value="4">4星及以上</option>
+                            <option value="3">3星及以上</option>
+                        </select>
+                        <select id="sortBy" onchange="filterTeachers()">
+                            <option value="rating">按评分排序</option>
+                            <option value="count">按评价数排序</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="searchTeacher" placeholder="搜索..." oninput="filterTeachers()">
+                        <button onclick="filterTeachers()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="courses-grid">
+                {% for course in courses %}
+                <div class="course-card"
+                     data-subject="{{ course.subject }}"
+                     data-grade="{{ course.grade_level }}"
+                     data-name="{{ course.name }}"
+                     data-price="{{ course.price }}"
+                     data-type="{{ course.course_type }}"
+                     data-rating="{{ course.rating }}"
+                     data-count="{{ course.rating_count }}">
+                    <div class="course-header">
+                        <h3>{{ course.name }}</h3>
+                        <div class="course-type">
+                            {% if course.course_type == 'online' %}
+                                <span class="type-badge online">
+                                    <i class="fas fa-video"></i> 线上课程
+                                </span>
+                            {% elif course.course_type == 'offline' %}
+                                <span class="type-badge offline">
+                                    <i class="fas fa-chalkboard-teacher"></i> 线下课程
+                                </span>
+                            {% else %}
+                                <span class="type-badge both">
+                                    <i class="fas fa-random"></i> 线上/线下可选
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="course-info">
+                        <p class="description">{{ course.description }}</p>
+                        <div class="details">
+                            <div class="detail-item">
+                                <i class="fas fa-book"></i>
+                                <span>{{ course.subject }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>{{ course.grade_level }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user-graduate"></i>
+                                <span>{{ course.teacher_name }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ course.current_students }}/{{ course.max_students }}人</span>
+                            </div>
+                            {% if course.location %}
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ course.location }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- 添加评分和评价信息 -->
+                        <div class="rating-info">
+                            <div class="rating">
+                                <span class="rating-score">{{ "%.1f"|format(course.rating) }}</span>
+                                <div class="stars">
+                                    {% for i in range(5) %}
+                                        <span class="star {% if i < course.rating %}filled{% endif %}">★</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="rating-level {{ course.rating_class }}">
+                                {{ course.rating_level }}
+                            </div>
+                            <div class="rating-count">
+                                {{ course.rating_count }}条评价
+                            </div>
+                        </div>
+
+                        <div class="course-footer">
+                            <div class="price">¥{{ course.price }}/课时</div>
+                            {% if course.current_students >= course.max_students %}
+                                <button class="enroll-btn disabled" disabled>
+                                    名额已满
+                                </button>
+                            {% else %}
+                                <button class="enroll-btn" onclick="showEnrollModal({{ course.id }}, '{{ course.course_type }}')">
+                                    立即报名
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选功能的 JavaScript -->
+    <script>
+        function filterTeachers() {
+            const subject = document.getElementById('subjectFilter').value;
+            const courseType = document.getElementById('courseTypeFilter').value;
+            const rating = document.getElementById('ratingFilter').value;
+            const search = document.getElementById('searchTeacher').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+            
+            const cards = Array.from(document.querySelectorAll('.course-card'));
+            
+            cards.forEach(card => {
+                const subjects = card.dataset.subject;
+                const type = card.dataset.type;
+                const teacherRating = parseFloat(card.dataset.rating);
+                const teacherName = card.dataset.name.toLowerCase();
+                
+                const subjectMatch = !subject || subjects.includes(subject);
+                const typeMatch = !courseType || type === courseType;
+                const ratingMatch = !rating || teacherRating >= parseFloat(rating);
+                const nameMatch = teacherName.includes(search);
+                
+                card.style.display = (subjectMatch && typeMatch && ratingMatch && nameMatch) ? 'flex' : 'none';
+            });
+
+            // 排序功能
+            const visibleCards = cards.filter(card => card.style.display !== 'none');
+            visibleCards.sort((a, b) => {
+                if (sortBy === 'rating') {
+                    return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                } else {
+                    return parseInt(b.dataset.count) - parseInt(a.dataset.count);
+                }
+            });
+
+            const container = document.querySelector('.courses-grid');
+            visibleCards.forEach(card => container.appendChild(card));
+        }
+
+        function enrollCourse(courseId) {
+            // 处理课程报名逻辑
+            console.log('报名课程:', courseId);
+            // 这里可以添加AJAX请求来处理报名
+            fetch(`/enroll/${courseId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('报名成功！');
+                } else {
+                    alert('报名失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('报名出错:', error);
+                alert('报名过程中出现错误，请稍后重试');
+            });
+        }
+    </script>
+
+    <!-- 添加报名模态框 -->
+    <div id="enrollModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>课程报名</h2>
+            <form id="enrollForm">
+                <input type="hidden" id="courseId" name="courseId">
+                
+                <div class="form-group" id="courseTypeSelection">
+                    <label>选择上课方式：</label>
+                    <select id="selectedType" name="selectedType" required>
+                        <option value="">请选择</option>
+                        <option value="online">线上课程</option>
+                        <option value="offline">线下课程</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="locationInfo" style="display: none;">
+                    <p>上课地点：<span id="courseLocation"></span></p>
+                </div>
+
+                <div class="form-group" id="onlineInfo" style="display: none;">
+                    <p>线上课程链接将在报名成功后发送到您的邮箱</p>
+                </div>
+
+                <button type="submit" class="submit-btn">确认报名</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    const modal = document.getElementById('enrollModal');
+    const span = document.getElementsByClassName('close')[0];
+    let currentCourse = null;
+
+    function showEnrollModal(courseId, courseType) {
+        currentCourse = {
+            id: courseId,
+            type: courseType
+        };
+        
+        const typeSelection = document.getElementById('courseTypeSelection');
+        const selectedType = document.getElementById('selectedType');
+        
+        // 根据课程类型设置选项
+        selectedType.innerHTML = '<option value="">请选择</option>';
+        if (courseType === 'online' || courseType === 'both') {
+            selectedType.innerHTML += '<option value="online">线上课程</option>';
+        }
+        if (courseType === 'offline' || courseType === 'both') {
+            selectedType.innerHTML += '<option value="offline">线下课程</option>';
+        }
+        
+        // 如果只有一种方式，直接选中
+        if (courseType !== 'both') {
+            selectedType.value = courseType;
+            selectedType.disabled = true;
+        } else {
+            selectedType.disabled = false;
+        }
+        
+        document.getElementById('courseId').value = courseId;
+        modal.style.display = 'block';
+    }
+
+    // 处理上课方式选择变化
+    document.getElementById('selectedType').addEventListener('change', function(e) {
+        const locationInfo = document.getElementById('locationInfo');
+        const onlineInfo = document.getElementById('onlineInfo');
+        
+        if (e.target.value === 'offline') {
+            locationInfo.style.display = 'block';
+            onlineInfo.style.display = 'none';
+        } else if (e.target.value === 'online') {
+            locationInfo.style.display = 'none';
+            onlineInfo.style.display = 'block';
+        }
+    });
+
+    // 处理报名表单提交
+    document.getElementById('enrollForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const courseId = document.getElementById('courseId').value;
+        const selectedType = document.getElementById('selectedType').value;
+        
+        fetch('/enroll/' + courseId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                course_type: selectedType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('报名成功！');
+                modal.style.display = 'none';
+                location.reload(); // 刷新页面更新课程状态
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('报名失败，请稍后重试');
+        });
+    });
+
+    // 关闭模态框
+    span.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    </script>
+</body>
+</html> 

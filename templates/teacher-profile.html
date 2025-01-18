@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师个人中心 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher-profile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" >首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    <!-- 如果用户已登录，根据用户类型显示不同的个人中心入口 -->
+                    {% if session.get('user_type') == 'student' %}
+                        <!-- 学生个人中心入口 -->
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <!-- 教师个人中心入口 -->
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}"class="active">个人中心</a>
+                    {% endif %}
+                    <!-- 退出登录按钮 -->
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <!-- 未登录时显示登录入口 -->
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 个人资料主要内容 -->
+    <div class="main-content">
+        <div class="profile-container">
+            <!-- 左侧个人信息 -->
+            <div class="profile-sidebar">
+                <div class="avatar-section">
+                    <form id="avatarForm" enctype="multipart/form-data">
+                        <div class="avatar-upload">
+                            <label for="avatarInput" class="avatar-preview">
+                                <img src="{{ teacher.avatar_url or url_for('static', filename='images/default-avatar.jpg') }}" 
+                                     alt="教师头像" 
+                                     class="avatar" 
+                                     id="avatarPreview">
+                            </label>
+                            <input type="file" 
+                                   id="avatarInput" 
+                                   name="avatar" 
+                                   accept="image/*" 
+                                   onchange="handleAvatarChange(this)">
+                        </div>
+                    </form>
+                </div>
+                <div class="basic-info">
+                    <h2>{{ teacher.name }}</h2>
+                    <div class="rating">
+                        <span class="rating-score">{{ teacher.rating or 5.0 }}</span>
+                        <div class="stars">
+                            {% for i in range(5) %}
+                                <span class="star {% if i < (teacher.rating or 5) %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                        <span class="rating-count">({{ teacher.rating_count or 0 }}条评价)</span>
+                    </div>
+                    <button class="change-password-btn" onclick="showPasswordModal()">
+                        <i class="fas fa-key"></i> 修改密码
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧详细信息 -->
+            <div class="profile-details">
+                <!-- 基本信息部分 -->
+                <section class="info-section">
+                    <h3>基本信息</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>教龄</label>
+                                <div class="info-value">
+                                    <span data-field="years_of_experience">{{ teacher.years_of_experience or 0 }}</span>
+                                    <small>年</small>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('years_of_experience')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>教学科目</label>
+                                <div class="info-value" data-field="subjects">
+                                    {% if teacher.subjects %}
+                                        {% for subject in teacher.subjects.split(',') %}
+                                            <span class="subject-tag">{{ subject }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="empty-value">暂无</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('subjects')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>联系电话</label>
+                                <div class="info-value">
+                                    <span data-field="phone">{{ teacher.phone or '未设置' }}</span>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('phone')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>电子邮箱</label>
+                                <div class="info-value">
+                                    <span data-field="email">{{ teacher.email or '未设置' }}</span>
+                                </div>
+                            </div>
+                            <button class="edit-info-btn" onclick="editInfo('email')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 证书和资质 -->
+                <section class="info-section">
+                    <h3>证书和资质</h3>
+                    <div class="certificates" id="certificateContainer">
+                        {% if teacher.certificates %}
+                            {% for cert in teacher.certificates %}
+                                <div class="certificate-item" data-id="{{ cert.id }}">
+                                    <img src="{{ cert.image_url }}" alt="{{ cert.name }}">
+                                    <div class="cert-info">
+                                        <p class="cert-name">{{ cert.name }}</p>
+                                        {% if cert.issue_date %}
+                                            <p class="cert-date">颁发日期：{{ cert.issue_date }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-data">暂未上传证书</p>
+                        {% endif %}
+                    </div>
+                    <button class="add-certificate-btn" onclick="showCertificateModal()">添加证书</button>
+                </section>
+
+                <!-- 自我介绍 -->
+                <section class="info-section">
+                    <h3>自我介绍</h3>
+                    <div class="introduction">
+                        <p data-field="introduction">{{ teacher.introduction or '暂无自我介绍' }}</p>
+                        <button class="edit-info-btn" onclick="editInfo('introduction')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 可用时间 -->
+                <section class="info-section">
+                    <h3>可用时间</h3>
+                    <div class="schedule-grid">
+                        {% for day in ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] %}
+                            <div class="schedule-day">
+                                <h4>{{ day }}</h4>
+                                <div class="time-slots">
+                                    <label>
+                                        <input type="checkbox" 
+                                               name="time_slot" 
+                                               data-day="{{ loop.index0 }}" 
+                                               value="morning"
+                                               {% if {'day': loop.index0, 'time': 'morning'} in teacher.available_times %}checked{% endif %}> 
+                                        上午
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" 
+                                               name="time_slot" 
+                                               data-day="{{ loop.index0 }}" 
+                                               value="afternoon"
+                                               {% if {'day': loop.index0, 'time': 'afternoon'} in teacher.available_times %}checked{% endif %}> 
+                                        下午
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" 
+                                               name="time_slot" 
+                                               data-day="{{ loop.index0 }}" 
+                                               value="evening"
+                                               {% if {'day': loop.index0, 'time': 'evening'} in teacher.available_times %}checked{% endif %}> 
+                                        晚上
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="save-schedule-btn" onclick="saveSchedule()">保存时间安排</button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 证书上传模态框 -->
+    <div class="certificate-upload-modal" id="certificateModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>上传证书</h3>
+            <form id="certificateForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="certName">证书名称</label>
+                    <input type="text" 
+                           id="certName" 
+                           name="cert_name" 
+                           required 
+                           placeholder="请输入证书名称">
+                </div>
+                
+                <div class="form-group">
+                    <label for="issueDate">颁发日期</label>
+                    <input type="date" 
+                           id="issueDate" 
+                           name="issue_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="certFile">证书图片</label>
+                    <input type="file" 
+                           id="certFile" 
+                           name="certificate" 
+                           accept="image/*" 
+                           required>
+                    <div class="preview-container">
+                        <img id="certPreview" 
+                             src="#" 
+                             alt="证书预览" 
+                             style="display: none;">
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">上传证书</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加编辑信息的模态框 -->
+    <div class="edit-info-modal" id="editInfoModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h3>编辑信息</h3>
+            <form id="editInfoForm">
+                <div class="form-group" id="normalInput">
+                    <label id="editLabel"></label>
+                    <input type="text" id="editInput" name="value">
+                </div>
+                <div class="form-group" id="subjectsInput" style="display: none;">
+                    <label>选择教学科目</label>
+                    <div class="subjects-selector">
+                        <div class="subject-options">
+                            <label><input type="checkbox" value="语文"> 语文</label>
+                            <label><input type="checkbox" value="数学"> 数学</label>
+                            <label><input type="checkbox" value="英语"> 英语</label>
+                            <label><input type="checkbox" value="物理"> 物理</label>
+                            <label><input type="checkbox" value="化学"> 化学</label>
+                            <label><input type="checkbox" value="生物"> 生物</label>
+                            <label><input type="checkbox" value="历史"> 历史</label>
+                            <label><input type="checkbox" value="地理"> 地理</label>
+                            <label><input type="checkbox" value="政治"> 政治</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="password-modal" id="passwordModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePasswordModal()">&times;</span>
+            <h3>修改密码</h3>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="oldPassword">原密码</label>
+                    <input type="password" 
+                           id="oldPassword" 
+                           name="old_password" 
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" 
+                           id="newPassword" 
+                           name="new_password" 
+                           required 
+                           minlength="6">
+                    <small class="form-text">密码长度不能少于6位</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码</label>
+                    <input type="password" 
+                           id="confirmPassword" 
+                           name="confirm_password" 
+                           required>
+                </div>
+                
+                <button type="submit" class="submit-btn">确认修改</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function handleAvatarChange(input) {
+        // 检查是否选择了文件
+        if (input.files && input.files[0]) {
+            // 创建 FormData 对象
+            const formData = new FormData();
+            formData.append('avatar', input.files[0]);
+            
+            // 预览选中的图片
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+            
+            // 上传图片到服务器
+            fetch("{{ url_for('upload_avatar') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('头像上传成功');
+                    // 更新头像显示
+                    document.getElementById('avatarPreview').src = data.avatar_url;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('上传失败，请稍后重试');
+            });
+        }
+    }
+
+    // 显示证书上传模态框
+    function showCertificateModal() {
+        document.getElementById('certificateModal').style.display = 'flex';
+    }
+
+    // 关闭模态框
+    document.querySelector('.close-btn').onclick = function() {
+        document.getElementById('certificateModal').style.display = 'none';
+    };
+
+    // 证书图片预览
+    document.getElementById('certFile').onchange = function(e) {
+        const preview = document.getElementById('certPreview');
+        const file = e.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // 处理证书上传
+    document.getElementById('certificateForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch("{{ url_for('upload_certificate') }}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 添加新证书到显示区域
+                const container = document.getElementById('certificateContainer');
+                const certHtml = `
+                    <div class="certificate-item" data-id="${data.certificate.id}">
+                        <img src="${data.certificate.image_url}" alt="${data.certificate.name}">
+                        <div class="cert-info">
+                            <p class="cert-name">${data.certificate.name}</p>
+                            ${data.certificate.issue_date ? 
+                                `<p class="cert-date">颁发日期：${data.certificate.issue_date}</p>` : 
+                                ''}
+                        </div>
+                    </div>
+                `;
+                
+                // 移除"暂无证书"提示
+                const noData = container.querySelector('.no-data');
+                if (noData) {
+                    noData.remove();
+                }
+                
+                // 添加新证书
+                container.insertAdjacentHTML('beforeend', certHtml);
+                
+                // 关闭模态框并重置表单
+                document.getElementById('certificateModal').style.display = 'none';
+                this.reset();
+                document.getElementById('certPreview').style.display = 'none';
+                
+                alert('证书上传成功');
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('上传失败，请稍后重试');
+        });
+    };
+
+    let currentEditField = '';
+
+    function editInfo(field) {
+        currentEditField = field;
+        const modal = document.getElementById('editInfoModal');
+        const normalInput = document.getElementById('normalInput');
+        const subjectsInput = document.getElementById('subjectsInput');
+        const editLabel = document.getElementById('editLabel');
+        const editInput = document.getElementById('editInput');
+        
+        // 根据不同字段显示不同的输入方式
+        if (field === 'subjects') {
+            normalInput.style.display = 'none';
+            subjectsInput.style.display = 'block';
+            // 设置当前已选科目
+            const currentSubjects = document.querySelector(`[data-field="subjects"]`).textContent.split(',');
+            document.querySelectorAll('.subject-options input').forEach(checkbox => {
+                checkbox.checked = currentSubjects.includes(checkbox.value.trim());
+            });
+        } else {
+            normalInput.style.display = 'block';
+            subjectsInput.style.display = 'none';
+            // 设置标签当前值
+            const labels = {
+                'years_of_experience': '教龄（年）',
+                'phone': '联系电话',
+                'email': '电子邮箱',
+                'introduction': '自我介绍'
+            };
+            editLabel.textContent = labels[field];
+            editInput.value = document.querySelector(`[data-field="${field}"]`).textContent.trim();
+            
+            // 根据字段类型设置输入框类型和属性
+            if (field === 'email') {
+                editInput.type = 'email';
+            } else if (field === 'phone') {
+                editInput.type = 'tel';
+                editInput.pattern = '[0-9]{11}';
+            } else if (field === 'years_of_experience') {
+                editInput.type = 'number';
+                editInput.min = '0';
+            } else if (field === 'introduction') {
+                // 将输入框改为文本区域
+                const textarea = document.createElement('textarea');
+                textarea.id = 'editInput';
+                textarea.name = 'value';
+                textarea.value = editInput.value;
+                textarea.className = 'introduction-textarea';
+                editInput.parentNode.replaceChild(textarea, editInput);
+            } else {
+                editInput.type = 'text';
+            }
+        }
+        
+        modal.style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editInfoModal').style.display = 'none';
+    }
+
+    // 处理信息更新
+    document.getElementById('editInfoForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        let value;
+        if (currentEditField === 'subjects') {
+            const selectedSubjects = [];
+            document.querySelectorAll('.subject-options input:checked').forEach(checkbox => {
+                selectedSubjects.push(checkbox.value);
+            });
+            value = selectedSubjects.join(',');
+        } else {
+            value = document.getElementById('editInput').value.trim();
+        }
+        
+        // 发送更新请求
+        fetch('/update_teacher_info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                field: currentEditField,
+                value: value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 更新显示
+                if (currentEditField === 'subjects') {
+                    const container = document.querySelector(`[data-field="subjects"]`);
+                    container.innerHTML = value.split(',').map(subject => 
+                        `<span class="subject-tag">${subject}</span>`
+                    ).join('');
+                } else {
+                    document.querySelector(`[data-field="${currentEditField}"]`).textContent = value;
+                }
+                closeEditModal();
+                alert('更新成功');
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('更新失败，请稍后重试');
+        });
+    };
+
+    // 点击模态框外部关闭模态框
+    window.onclick = function(event) {
+        const editModal = document.getElementById('editInfoModal');
+        const certModal = document.getElementById('certificateModal');
+        if (event.target === editModal) {
+            closeEditModal();
+        }
+        if (event.target === certModal) {
+            certModal.style.display = 'none';
+        }
+    };
+
+    function saveSchedule() {
+        // 收集所有选中的时间段
+        const timeSlots = [];
+        document.querySelectorAll('input[name="time_slot"]:checked').forEach(checkbox => {
+            timeSlots.push({
+                day: parseInt(checkbox.dataset.day),
+                time: checkbox.value
+            });
+        });
+        
+        // 发送更新请求
+        fetch('/update_available_times', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                time_slots: timeSlots
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('时间安排已保存');
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请稍后重试');
+        });
+    }
+
+    function showPasswordModal() {
+        document.getElementById('passwordModal').style.display = 'flex';
+    }
+
+    function closePasswordModal() {
+        document.getElementById('passwordModal').style.display = 'none';
+        document.getElementById('passwordForm').reset();
+    }
+
+    // 处理密码修改
+    document.getElementById('passwordForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        const oldPassword = document.getElementById('oldPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+            alert('两次输入的新密码不一致');
+            return;
+        }
+        
+        fetch('/change_password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                old_password: oldPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('密码修改成功');
+                closePasswordModal();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('修改失败，请稍后重试');
+        });
+    };
+    </script>
+</body>
+</html> 

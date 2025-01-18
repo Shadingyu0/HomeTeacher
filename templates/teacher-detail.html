@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ teacher.name }} - 教师详情 - 智家能家教预约平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .teacher-detail {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .teacher-header {
+            display: flex;
+            align-items: start;
+            gap: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .teacher-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .teacher-info {
+            flex: 1;
+        }
+
+        .teacher-name {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .teacher-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .rating-chart {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .rating-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .rating-label {
+            width: 80px;
+        }
+
+        .rating-progress {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .rating-fill {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s ease;
+        }
+
+        .rating-percent {
+            width: 60px;
+            text-align: right;
+            margin-left: 10px;
+        }
+
+        .courses-section {
+            margin-top: 30px;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .course-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .certificates-section {
+            margin-top: 30px;
+        }
+
+        .certificate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .certificate-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .rating-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .excellent { background-color: #28a745; }
+        .very-good { background-color: #17a2b8; }
+        .good { background-color: #007bff; }
+        .mixed { background-color: #ffc107; }
+        .poor { background-color: #dc3545; }
+        .very-poor { background-color: #6c757d; }
+
+        .ratings-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .ratings-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .rating-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .rating-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .rating-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .rating-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rating-score .stars {
+            color: #ffc107;
+        }
+
+        .rating-score .score {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .rating-content {
+            color: #555;
+        }
+
+        .rating-content .comment {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .rating-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .rating-date {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .rating-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .rating-score {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">智家能家教预约平台</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">首页</a>
+                <a href="{{ url_for('about') }}">关于我们</a>
+                {% if session.get('user_id') %}
+                    {% if session.get('user_type') == 'student' %}
+                        <a href="{{ url_for('course_selection') }}">课程选择</a>
+                        <a href="{{ url_for('teacher_recommendation') }}" class="active">名师推荐</a>
+                        <a href="{{ url_for('student_profile') }}">个人中心</a>
+                    {% else %}
+                        <a href="{{ url_for('course_publish') }}">课程发布</a>
+                        <a href="{{ url_for('teacher_profile') }}">个人中心</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}">退出登录</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="teacher-detail">
+        <div class="teacher-header">
+            <img src="{{ teacher.avatar_url or url_for('static', filename='images/default-avatar.jpg') }}" 
+                 alt="{{ teacher.name }}" class="teacher-avatar">
+            <div class="teacher-info">
+                <h1 class="teacher-name">
+                    {{ teacher.name }}
+                    <span class="rating-badge {{ teacher.rating_class }}">{{ teacher.rating_level }}</span>
+                </h1>
+                <p>{{ teacher.introduction or '暂无介绍' }}</p>
+                <div class="teacher-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ "%.1f"|format(teacher.rating) }}</div>
+                        <div class="stat-label">平均评分</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ teacher.rating_count }}</div>
+                        <div class="stat-label">评价数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ teacher.years_of_experience }}</div>
+                        <div class="stat-label">教学经验（年）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ "%.1f"|format(teacher.positive_rate) }}%</div>
+                        <div class="stat-label">好评率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rating-chart">
+            <h2 class="section-title">评分分布</h2>
+            {% for i in range(5, 0, -1) %}
+            <div class="rating-bar">
+                <div class="rating-label">{{ i }}星</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ teacher.rating_distribution[i] }}%"></div>
+                </div>
+                <div class="rating-percent">{{ "%.1f"|format(teacher.rating_distribution[i]) }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="courses-section">
+            <h2 class="section-title">开设课程</h2>
+            <div class="course-grid">
+                {% for course in teacher.courses %}
+                <div class="course-card">
+                    <h3>{{ course.name }}</h3>
+                    <p>{{ course.description }}</p>
+                    <p>科目：{{ course.subject }}</p>
+                    <p>年级：{{ course.grade_level }}</p>
+                    <p>价格：¥{{ course.price }}/课时</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="certificates-section">
+            <h2 class="section-title">教师资质</h2>
+            <div class="certificate-grid">
+                {% for cert in teacher.certificates %}
+                <div class="certificate-card">
+                    <h3>{{ cert.name }}</h3>
+                    <p>发证日期：{{ cert.issue_date }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="ratings-section">
+            <h2 class="section-title">学员评价 ({{ teacher.rating_count }}条)</h2>
+            <div class="ratings-container">
+                {% for rating in teacher.ratings %}
+                <div class="rating-card">
+                    <div class="rating-header">
+                        <div class="student-info">
+                            <img src="{{ rating.student_avatar or url_for('static', filename='images/default-avatar.jpg') }}" 
+                                 alt="学生头像" 
+                                 class="student-avatar">
+                            <span class="student-name">{{ rating.student_name }}</span>
+                        </div>
+                        <div class="rating-score">
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    <span class="star {% if i < rating.rating %}filled{% endif %}">★</span>
+                                {% endfor %}
+                            </div>
+                            <span class="score">{{ "%.1f"|format(rating.rating) }}</span>
+                        </div>
+                    </div>
+                    <div class="rating-content">
+                        <p class="comment">{{ rating.comment }}</p>
+                        <div class="rating-footer">
+                            <span class="rating-date">{{ rating.formatted_date }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
